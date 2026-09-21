@@ -8,6 +8,7 @@
 #include <future>
 #include <chrono>
 #include "TTSEngine.h"
+#include "WhisperEngine.h"
 
 struct AIReply
 {
@@ -118,4 +119,10 @@ private:
 	bool wasVoicePlaying = false;
 	
 	std::vector<float> speechEnvelope;
+	
+	// ========================================================
+	// Whisper
+	// ========================================================
+	
+	WhisperEngine whisper;
 };

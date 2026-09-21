@@ -21,3 +21,6 @@ bin/data/tts/
 third_party/supertonic/.venv/
 third_party/supertonic/cpp/build/
 third_party/supertonic/assets/
+
+bin/data/whisper/
+third_party/whisper.cpp/build*/

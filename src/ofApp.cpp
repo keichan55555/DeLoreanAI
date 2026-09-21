@@ -164,6 +164,29 @@ void ofApp::setup()
 	}
 	
 	
+	// ============================================================
+	// Whisper
+	// ============================================================
+	
+	bool whisperOk =
+		whisper.setup(
+			ofToDataPath(
+				"whisper/ggml-base.bin",
+				true
+			)
+		);
+
+
+	if (whisperOk)
+	{
+		ofLogNotice()
+			<< "Whisper initialized successfully.";
+	}
+	else
+	{
+		ofLogError()
+			<< "Whisper initialization failed.";
+	}
 }
 
 
