@@ -4,6 +4,18 @@
 
 #include "VehicleAnimator.h"
 #include "DeLorean.h"
+#include "LLMEngine.h"
+#include <future>
+#include <chrono>
+//#include "TTSEngine.h"
+
+struct AIReply
+{
+	std::string speech = "";
+	std::string reaction = "none";
+	float intensity = 0.0f;
+	bool valid = false;
+};
 
 
 class ofApp
@@ -37,7 +49,26 @@ private:
 	VehicleAnimator animator;
 
 	DeLorean car;
+	
+	// ==========================
+	// LLM
+	// ==========================
 
+	LLMEngine llm;
+
+	std::string aiResponse;
+
+	std::future<std::string> llmFuture;
+
+	bool llmGenerating = false;
+
+	AIReply parseAIReply(
+		const std::string& rawText
+	);
+
+	void askDeLorean(
+		const std::string& userText
+	);
 
 	// ========================================================
 	// Drawing
@@ -53,4 +84,19 @@ private:
 	std::string modeText() const;
 
 	std::string reactionText() const;
+	
+	
+	// ========================================================
+	// TTS
+	// ========================================================
+	
+//	TTSEngine tts;
+//
+//	ofSoundPlayer voicePlayer;
+//
+//	std::future<bool> ttsFuture;
+//
+//	bool ttsGenerating = false;
+//
+//	std::string ttsOutputPath;
 };

@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Xcode user data
+xcuserdata/
+**/xcuserdata/
+*.xcuserstate
+
+# openFrameworks build output
+obj/
+bin/*.app/
+bin/*.dSYM/
+bin/*.framework/
+
+# Local AI models
+bin/data/llm/*.gguf
+bin/data/tts/
+
+# Supertonic local/generated files
+third_party/supertonic/.venv/
+third_party/supertonic/cpp/build/
+third_party/supertonic/assets/
