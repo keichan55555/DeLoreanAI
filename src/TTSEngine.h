@@ -10,7 +10,6 @@
 class TTSEngine
 {
 public:
-
 	TTSEngine();
 
 	bool setup(
@@ -43,18 +42,13 @@ public:
 
 
 private:
-
 	Ort::Env env;
-
 	Ort::MemoryInfo memoryInfo;
 
 	std::unique_ptr<TextToSpeech> tts;
-
 	std::unique_ptr<Style> style;
 
-
 	std::string voiceStylesDir;
-
 	std::string currentVoice;
 
 	bool ready = false;

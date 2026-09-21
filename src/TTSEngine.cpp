@@ -1,6 +1,7 @@
 #include "TTSEngine.h"
 
 #include <algorithm>
+#include <vector>
 
 
 TTSEngine::TTSEngine()
@@ -25,44 +26,36 @@ bool TTSEngine::setup(
 	const std::string& voiceStylesDirectory,
 	const std::string& defaultVoice)
 {
+	ready = false;
+
 	try
 	{
-		voiceStylesDir =
-			voiceStylesDirectory;
+		voiceStylesDir = voiceStylesDirectory;
 
-
-		// ONNXモデルロード
-		tts =
-			loadTextToSpeech(
-				env,
-				onnxDir,
-				false
-			);
-
+		tts = loadTextToSpeech(
+			env,
+			onnxDir,
+			false
+		);
 
 		if (!tts)
 		{
 			ofLogError()
-				<< "TTSEngine: "
-				<< "Could not load TTS.";
+				<< "TTSEngine: failed to load TTS models.";
 
 			return false;
 		}
-
 
 		if (!setVoice(defaultVoice))
 		{
 			return false;
 		}
 
-
 		ready = true;
 
-
 		ofLogNotice()
-			<< "TTSEngine ready. Voice: "
+			<< "TTSEngine ready. Voice = "
 			<< currentVoice;
-
 
 		return true;
 	}
@@ -71,8 +64,6 @@ bool TTSEngine::setup(
 		ofLogError()
 			<< "TTSEngine setup error: "
 			<< e.what();
-
-		ready = false;
 
 		return false;
 	}
@@ -85,12 +76,11 @@ bool TTSEngine::setVoice(
 {
 	try
 	{
-		std::string path =
+		const std::string path =
 			voiceStylesDir
 			+ "/"
 			+ voiceName
 			+ ".json";
-
 
 		Style loadedStyle =
 			loadVoiceStyle(
@@ -98,21 +88,16 @@ bool TTSEngine::setVoice(
 				false
 			);
 
-
 		style =
 			std::make_unique<Style>(
 				std::move(loadedStyle)
 			);
 
-
-		currentVoice =
-			voiceName;
-
+		currentVoice = voiceName;
 
 		ofLogNotice()
-			<< "TTS voice changed to: "
+			<< "TTS voice = "
 			<< currentVoice;
-
 
 		return true;
 	}
@@ -143,6 +128,13 @@ bool TTSEngine::synthesizeToFile(
 		return false;
 	}
 
+	if (text.empty())
+	{
+		ofLogWarning()
+			<< "TTSEngine: empty text.";
+
+		return false;
+	}
 
 	try
 	{
@@ -155,7 +147,6 @@ bool TTSEngine::synthesizeToFile(
 				totalSteps,
 				speed
 			);
-
 
 		if (
 			result.wav.empty() ||
@@ -170,10 +161,8 @@ bool TTSEngine::synthesizeToFile(
 			return false;
 		}
 
-
-		int sampleRate =
+		const int sampleRate =
 			tts->getSampleRate();
-
 
 		std::size_t wavLength =
 			static_cast<std::size_t>(
@@ -181,20 +170,16 @@ bool TTSEngine::synthesizeToFile(
 				result.duration[0]
 			);
 
-
 		wavLength =
 			std::min(
 				wavLength,
 				result.wav.size()
 			);
 
-
 		std::vector<float> wavOut(
 			result.wav.begin(),
-			result.wav.begin()
-				+ wavLength
+			result.wav.begin() + wavLength
 		);
-
 
 		writeWavFile(
 			outputPath,
@@ -202,14 +187,11 @@ bool TTSEngine::synthesizeToFile(
 			sampleRate
 		);
 
-
 		clearTensorBuffers();
-
 
 		ofLogNotice()
 			<< "TTS saved: "
 			<< outputPath;
-
 
 		return true;
 	}
@@ -217,11 +199,9 @@ bool TTSEngine::synthesizeToFile(
 	{
 		clearTensorBuffers();
 
-
 		ofLogError()
 			<< "TTS synthesis error: "
 			<< e.what();
-
 
 		return false;
 	}
