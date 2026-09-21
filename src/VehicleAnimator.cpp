@@ -256,7 +256,22 @@ void VehicleAnimator::update(
 		targetSteerFL,
 		targetSteerFR
 	);
+	
+	// ========================================================
+	// Speaking
+	// ========================================================
 
+	if (mode == VehicleMode::Speaking)
+	{
+		targetHeave +=
+			std::sin(now * 10.0f) * 0.35f;
+
+		targetPitch +=
+			std::sin(now * 7.0f) * 0.25f;
+
+		targetRoll +=
+			std::sin(now * 5.0f) * 0.18f;
+	}
 
 	// ========================================================
 	// 一時リアクション

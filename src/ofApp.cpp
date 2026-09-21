@@ -236,19 +236,24 @@ void ofApp::update()
 					<< reply.intensity;
 
 
+				pendingReaction =
+					VehicleReaction::None;
+
+				pendingReactionIntensity =
+					reply.intensity;
+
+				hasPendingReaction = true;
+
+
 				if (reply.reaction == "happy")
 				{
-					animator.trigger(
-						VehicleReaction::Happy,
-						reply.intensity
-					);
+					pendingReaction =
+						VehicleReaction::Happy;
 				}
 				else if (reply.reaction == "surprised")
 				{
-					animator.trigger(
-						VehicleReaction::Surprised,
-						reply.intensity
-					);
+					pendingReaction =
+						VehicleReaction::Surprised;
 				}
 
 
@@ -314,9 +319,6 @@ void ofApp::update()
 
 			if (success)
 			{
-				ofLogNotice()
-					<< "TTS generation completed.";
-
 				voicePlayer.unload();
 
 				if (
@@ -328,13 +330,33 @@ void ofApp::update()
 				{
 					voicePlayer.play();
 
+					// 音声再生中モードへ
+					animator.setMode(
+						VehicleMode::Speaking
+					);
+
+					// 音声開始と同時にreaction
+					if (hasPendingReaction)
+					{
+						if (
+							pendingReaction !=
+							VehicleReaction::None
+						)
+						{
+							animator.trigger(
+								pendingReaction,
+								pendingReactionIntensity
+							);
+						}
+
+						hasPendingReaction = false;
+
+						pendingReaction =
+							VehicleReaction::None;
+					}
+
 					ofLogNotice()
 						<< "Playing generated voice.";
-				}
-				else
-				{
-					ofLogError()
-						<< "Failed to load generated WAV.";
 				}
 			}
 			else
@@ -344,6 +366,27 @@ void ofApp::update()
 			}
 		}
 	}
+	
+	bool isVoicePlaying =
+		voicePlayer.isPlaying();
+
+
+	if (
+		wasVoicePlaying &&
+		!isVoicePlaying
+	)
+	{
+		animator.setMode(
+			VehicleMode::Idle
+		);
+
+		ofLogNotice()
+			<< "Voice playback finished.";
+	}
+
+
+	wasVoicePlaying =
+		isVoicePlaying;
 
 }
 
@@ -546,18 +589,19 @@ void ofApp::keyPressed(
 {
 	switch (key)
 	{
-		// ====================================================
-		// Idle
-		// ====================================================
-
-		case ' ':
-		{
-			animator.setMode(
-				VehicleMode::Idle
-			);
-
-			break;
-		}
+			
+//		// ====================================================
+//		// Idle
+//		// ====================================================
+//
+//		case ' ':
+//		{
+//			animator.setMode(
+//				VehicleMode::Idle
+//			);
+//
+//			break;
+//		}
 
 
 		// ====================================================

@@ -108,4 +108,12 @@ private:
 	std::string detectTTSLanguage(
 		const std::string& text
 	);
+	
+	VehicleReaction pendingReaction =
+		VehicleReaction::None;
+
+	float pendingReactionIntensity = 0.0f;
+
+	bool hasPendingReaction = false;
+	bool wasVoicePlaying = false;
 };

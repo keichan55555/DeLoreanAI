@@ -11,7 +11,8 @@ enum class VehicleMode
 {
 	Idle,
 	Listening,
-	Thinking
+	Thinking,
+	Speaking
 };
 
 
