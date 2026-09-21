@@ -116,4 +116,6 @@ private:
 
 	bool hasPendingReaction = false;
 	bool wasVoicePlaying = false;
+	
+	std::vector<float> speechEnvelope;
 };

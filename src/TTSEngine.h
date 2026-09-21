@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 
 class TTSEngine
@@ -39,6 +40,11 @@ public:
 	{
 		return currentVoice;
 	}
+	
+	const std::vector<float>& getLastEnvelope() const
+	{
+		return lastEnvelope;
+	}
 
 
 private:
@@ -52,4 +58,6 @@ private:
 	std::string currentVoice;
 
 	bool ready = false;
+	
+	std::vector<float> lastEnvelope;
 };

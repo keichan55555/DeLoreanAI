@@ -127,6 +127,16 @@ public:
 	{
 		return airborne;
 	}
+	
+	void setSpeechAmplitude(float amplitude)
+	{
+		speechAmplitude =
+			ofClamp(
+				amplitude,
+				0.0f,
+				1.0f
+			);
+	}
 
 
 private:
@@ -277,4 +287,8 @@ private:
 
 
 	void finishReaction();
+	
+	
+	float speechAmplitude = 0.0f;
+	float smoothedSpeechAmplitude = 0.0f;
 };

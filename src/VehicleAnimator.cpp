@@ -263,14 +263,52 @@ void VehicleAnimator::update(
 
 	if (mode == VehicleMode::Speaking)
 	{
+		smoothedSpeechAmplitude =
+			ofLerp(
+				smoothedSpeechAmplitude,
+				speechAmplitude,
+				0.35f
+			);
+
+
+		// 小さい声も大きめに反映する
+		float a =
+			std::pow(
+				smoothedSpeechAmplitude,
+				0.55f
+			);
+
+		a =
+			ofClamp(
+				a,
+				0.0f,
+				1.0f
+			);
+
+
+		// 上下
 		targetHeave +=
-			std::sin(now * 10.0f) * 0.35f;
+			std::sin(now * 11.0f)
+			* 0.45f
+			* a;
 
+		// 声の強さに応じた上向き成分
+		targetHeave +=
+			1.0f * a;
+
+
+		// 前後にうなずく感じ
 		targetPitch +=
-			std::sin(now * 7.0f) * 0.25f;
+			std::sin(now * 8.0f)
+			* 1.2f
+			* a;
 
+
+		// 少し左右にも動かす
 		targetRoll +=
-			std::sin(now * 5.0f) * 0.18f;
+			std::sin(now * 5.5f)
+			* 0.65f
+			* a;
 	}
 
 	// ========================================================

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <cmath>
 
 
 TTSEngine::TTSEngine()
@@ -180,6 +181,95 @@ bool TTSEngine::synthesizeToFile(
 			result.wav.begin(),
 			result.wav.begin() + wavLength
 		);
+		
+		// ----------------------------------------------------------
+		// 発話アニメーション用の音量エンベロープを作る
+		// 約20msごとのRMSを計算
+		// ----------------------------------------------------------
+
+		lastEnvelope.clear();
+
+		const std::size_t windowSize =
+			std::max<std::size_t>(
+				1,
+				static_cast<std::size_t>(
+					sampleRate * 0.02f
+				)
+			);
+
+		float maxRms = 0.0f;
+
+
+		for (
+			std::size_t start = 0;
+			start < wavOut.size();
+			start += windowSize
+		)
+		{
+			const std::size_t end =
+				std::min(
+					start + windowSize,
+					wavOut.size()
+				);
+
+
+			double sumSquares = 0.0;
+
+
+			for (
+				std::size_t i = start;
+				i < end;
+				++i
+			)
+			{
+				const float sample =
+					wavOut[i];
+
+				sumSquares +=
+					sample * sample;
+			}
+
+
+			const std::size_t count =
+				end - start;
+
+
+			const float rms =
+				count > 0
+				? static_cast<float>(
+					std::sqrt(
+						sumSquares /
+						static_cast<double>(count)
+					)
+				)
+				: 0.0f;
+
+
+			lastEnvelope.push_back(rms);
+
+			maxRms =
+				std::max(
+					maxRms,
+					rms
+				);
+		}
+
+
+		// 0～1へ正規化
+		if (maxRms > 0.00001f)
+		{
+			for (float& value : lastEnvelope)
+			{
+				value /= maxRms;
+
+				value =
+					ofClamp(
+						value,
+						0.0f,
+						1.0f
+					);
+			}
+		}
 
 		writeWavFile(
 			outputPath,

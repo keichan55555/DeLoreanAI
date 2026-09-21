@@ -319,6 +319,10 @@ void ofApp::update()
 
 			if (success)
 			{
+				
+				speechEnvelope =
+					tts.getLastEnvelope();
+				
 				voicePlayer.unload();
 
 				if (
@@ -369,6 +373,49 @@ void ofApp::update()
 	
 	bool isVoicePlaying =
 		voicePlayer.isPlaying();
+	
+	if (
+		isVoicePlaying &&
+		!speechEnvelope.empty()
+	)
+	{
+		float position =
+			voicePlayer.getPosition();
+
+		position =
+			ofClamp(
+				position,
+				0.0f,
+				1.0f
+			);
+
+
+		std::size_t index =
+			static_cast<std::size_t>(
+				position *
+				static_cast<float>(
+					speechEnvelope.size() - 1
+				)
+			);
+
+
+		index =
+			std::min(
+				index,
+				speechEnvelope.size() - 1
+			);
+
+
+		animator.setSpeechAmplitude(
+			speechEnvelope[index]
+		);
+	}
+	else
+	{
+		animator.setSpeechAmplitude(
+			0.0f
+		);
+	}
 
 
 	if (
