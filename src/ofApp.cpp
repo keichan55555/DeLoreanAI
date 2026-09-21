@@ -119,39 +119,49 @@ void ofApp::setup()
 	// TTS
 	// ============================================================
 	
-//	ttsOutputPath =
-//		ofToDataPath(
-//			"tts/output/current.wav",
-//			true
-//		);
-//
-//
-//	bool ttsOk =
-//		tts.setup(
-//			ofToDataPath(
-//				"tts/onnx",
-//				true
-//			),
-//
-//			ofToDataPath(
-//				"tts/voice_styles",
-//				true
-//			),
-//
-//			"M1"
-//		);
-//
-//
-//	if (ttsOk)
-//	{
-//		ofLogNotice()
-//			<< "Supertonic ready.";
-//	}
-//	else
-//	{
-//		ofLogError()
-//			<< "Supertonic setup failed.";
-//	}
+	ttsOutputPath =
+		ofToDataPath(
+			"tts/output/current.wav",
+			true
+		);
+
+	ofDirectory outputDir(
+		ofToDataPath(
+			"tts/output",
+			true
+		)
+	);
+
+	if (!outputDir.exists())
+	{
+		outputDir.create(true);
+	}
+
+	bool ttsOk =
+		tts.setup(
+			ofToDataPath(
+				"tts/onnx",
+				true
+			),
+
+			ofToDataPath(
+				"tts/voice_styles",
+				true
+			),
+
+			"M1"
+		);
+
+	if (ttsOk)
+	{
+		ofLogNotice()
+			<< "Supertonic ready.";
+	}
+	else
+	{
+		ofLogError()
+			<< "Supertonic setup failed.";
+	}
 	
 	
 }
@@ -283,50 +293,59 @@ void ofApp::update()
 	// TTS
 	// ========================================================
 	
-//	if (
-//		ttsGenerating &&
-//		ttsFuture.valid()
-//	)
-//	{
-//		auto status =
-//			ttsFuture.wait_for(
-//				std::chrono::milliseconds(0)
-//			);
-//
-//
-//		if (
-//			status ==
-//			std::future_status::ready
-//		)
-//		{
-//			bool success =
-//				ttsFuture.get();
-//
-//
-//			ttsGenerating = false;
-//
-//
-//			if (success)
-//			{
-//				voicePlayer.unload();
-//
-//
-//				if (
-//					voicePlayer.load(
-//						ttsOutputPath
-//					)
-//				)
-//				{
-//					voicePlayer.play();
-//				}
-//				else
-//				{
-//					ofLogError()
-//						<< "Could not load generated WAV.";
-//				}
-//			}
-//		}
-//	}
+	if (
+		ttsGenerating &&
+		ttsFuture.valid()
+	)
+	{
+		auto status =
+			ttsFuture.wait_for(
+				std::chrono::milliseconds(0)
+			);
+
+		if (
+			status ==
+			std::future_status::ready
+		)
+		{
+			bool success =
+				ttsFuture.get();
+
+			ttsGenerating = false;
+
+			if (success)
+			{
+				ofLogNotice()
+					<< "TTS generation completed.";
+
+				voicePlayer.unload();
+
+				if (
+					voicePlayer.load(
+						ttsOutputPath,
+						false
+					)
+				)
+				{
+					voicePlayer.play();
+
+					ofLogNotice()
+						<< "Playing generated voice.";
+				}
+				else
+				{
+					ofLogError()
+						<< "Failed to load generated WAV.";
+				}
+			}
+			else
+			{
+				ofLogError()
+					<< "TTS generation failed.";
+			}
+		}
+	}
+
 }
 
 
@@ -645,35 +664,40 @@ void ofApp::keyPressed(
 			break;
 		}
 			
-//		case '6':
-//		{
-//			if (
-//				tts.isReady() &&
-//				!ttsGenerating
-//			)
-//			{
-//				ttsGenerating = true;
-//
-//
-//				ttsFuture =
-//					std::async(
-//						std::launch::async,
-//
-//						[this]()
-//						{
-//							return
-//								tts.synthesizeToFile(
-//									"こんにちは！今日も一緒にドライブしよう！",
-//									"ja",
-//									ttsOutputPath,
-//									1.05f
-//								);
-//						}
-//					);
-//			}
-//
-//			break;
-//		}
+		case '6':
+		{
+			if (
+				tts.isReady() &&
+				!ttsGenerating
+			)
+			{
+				voicePlayer.stop();
+				voicePlayer.unload();
+
+				ttsGenerating = true;
+
+				ofLogNotice()
+					<< "Starting Japanese TTS...";
+
+				ttsFuture =
+					std::async(
+						std::launch::async,
+
+						[this]()
+						{
+							return tts.synthesizeToFile(
+								"今日はいい天気ですね。明日は東京へ行きます。",
+								"ja",
+								ttsOutputPath,
+								1.05f,
+								10
+							);
+						}
+					);
+			}
+
+			break;
+		}
 		
 	}
 }

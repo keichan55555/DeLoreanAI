@@ -7,7 +7,7 @@
 #include "LLMEngine.h"
 #include <future>
 #include <chrono>
-//#include "TTSEngine.h"
+#include "TTSEngine.h"
 
 struct AIReply
 {
@@ -90,13 +90,13 @@ private:
 	// TTS
 	// ========================================================
 	
-//	TTSEngine tts;
-//
-//	ofSoundPlayer voicePlayer;
-//
-//	std::future<bool> ttsFuture;
-//
-//	bool ttsGenerating = false;
-//
-//	std::string ttsOutputPath;
+	TTSEngine tts;
+
+	ofSoundPlayer voicePlayer;
+
+	std::future<bool> ttsFuture;
+
+	bool ttsGenerating = false;
+
+	std::string ttsOutputPath;
 };
