@@ -221,9 +221,7 @@ void ofApp::update()
 
 			if (reply.valid)
 			{
-				aiResponse =
-					reply.speech;
-
+				aiResponse = reply.speech;
 
 				ofLogNotice()
 					<< "Speech: "
@@ -238,30 +236,31 @@ void ofApp::update()
 					<< reply.intensity;
 
 
-				// ====================================================
-				// Reaction
-				// ====================================================
-
-				if (
-					reply.reaction ==
-					"happy"
-				)
+				if (reply.reaction == "happy")
 				{
 					animator.trigger(
 						VehicleReaction::Happy,
 						reply.intensity
 					);
 				}
-				else if (
-					reply.reaction ==
-					"surprised"
-				)
+				else if (reply.reaction == "surprised")
 				{
 					animator.trigger(
 						VehicleReaction::Surprised,
 						reply.intensity
 					);
 				}
+
+
+				std::string language =
+					detectTTSLanguage(
+						reply.speech
+					);
+
+				speakText(
+					reply.speech,
+					language
+				);
 			}
 			else
 			{
@@ -666,35 +665,10 @@ void ofApp::keyPressed(
 			
 		case '6':
 		{
-			if (
-				tts.isReady() &&
-				!ttsGenerating
-			)
-			{
-				voicePlayer.stop();
-				voicePlayer.unload();
-
-				ttsGenerating = true;
-
-				ofLogNotice()
-					<< "Starting Japanese TTS...";
-
-				ttsFuture =
-					std::async(
-						std::launch::async,
-
-						[this]()
-						{
-							return tts.synthesizeToFile(
-								"今日はいい天気ですね。明日は東京へ行きます。",
-								"ja",
-								ttsOutputPath,
-								1.05f,
-								10
-							);
-						}
-					);
-			}
+			speakText(
+				"今日はいい天気ですね。明日は東京へ行きます。",
+				"ja"
+			);
 
 			break;
 		}
@@ -932,4 +906,67 @@ void ofApp::askDeLorean(
 				);
 			}
 		);
+}
+
+void ofApp::speakText(
+	const std::string& text,
+	const std::string& language)
+{
+	if (!tts.isReady())
+	{
+		ofLogWarning() << "TTS is not ready.";
+		return;
+	}
+
+	if (ttsGenerating)
+	{
+		ofLogWarning() << "TTS is already generating.";
+		return;
+	}
+
+	if (text.empty())
+	{
+		return;
+	}
+
+	voicePlayer.stop();
+	voicePlayer.unload();
+
+	ttsGenerating = true;
+
+	ofLogNotice()
+		<< "TTS text: "
+		<< text;
+
+	ttsFuture =
+		std::async(
+			std::launch::async,
+
+			[this, text, language]()
+			{
+				return tts.synthesizeToFile(
+					text,
+					language,
+					ttsOutputPath,
+					1.0f,
+					12
+				);
+			}
+		);
+}
+
+std::string ofApp::detectTTSLanguage(
+	const std::string& text)
+{
+	for (unsigned char c : text)
+	{
+		// UTF-8の非ASCII文字が含まれていれば、
+		// 今回は日本語として扱う
+		if (c >= 0x80)
+		{
+			return "ja";
+		}
+	}
+
+	return "en";
 }

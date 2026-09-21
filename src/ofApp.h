@@ -99,4 +99,13 @@ private:
 	bool ttsGenerating = false;
 
 	std::string ttsOutputPath;
+	
+	void speakText(
+		const std::string& text,
+		const std::string& language
+	);
+	
+	std::string detectTTSLanguage(
+		const std::string& text
+	);
 };

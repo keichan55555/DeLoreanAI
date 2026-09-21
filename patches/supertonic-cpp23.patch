@@ -1,0 +1,32 @@
+diff --git a/cpp/helper.cpp b/cpp/helper.cpp
+index 1545c99..2d1aa86 100644
+--- a/cpp/helper.cpp
++++ b/cpp/helper.cpp
+@@ -71,10 +71,10 @@ std::string UnicodeProcessor::preprocessText(const std::string& text, const std:
+         {"‑", "-"},      // non-breaking hyphen
+         {"—", "-"},      // em dash
+         {"_", " "},      // underscore
+-        { u8"\u201C", "\"" },   // left double quote "
+-        { u8"\u201D", "\"" },   // right double quote "
+-        { u8"\u2018", "'"  },   // left single quote '
+-        { u8"\u2019", "'"  },   // right single quote '
++		{ "\xE2\x80\x9C", "\"" },
++		{ "\xE2\x80\x9D", "\"" },
++		{ "\xE2\x80\x98", "'"  },
++		{ "\xE2\x80\x99", "'"  },
+         {"´", "'"},      // acute accent
+         {"`", "'"},      // grave accent
+         {"[", " "},      // left bracket
+@@ -169,9 +169,9 @@ std::string UnicodeProcessor::preprocessText(const std::string& text, const std:
+                 last_three == "」" || last_three == "』" ||
+                 last_three == "】" || last_three == "〉" ||
+                 last_three == "》" || last_three == "›" ||
+-                last_three == "»" || last_three == u8"\u201C" ||
+-                last_three == u8"\u201D" || last_three == u8"\u2018" ||
+-                last_three == u8"\u2019") {
++				last_three == "»" || last_three == "\xE2\x80\x9C" ||
++				last_three == "\xE2\x80\x9D" || last_three == "\xE2\x80\x98" ||
++				last_three == "\xE2\x80\x99") {
+                 ends_with_punct = true;
+             }
+         }
