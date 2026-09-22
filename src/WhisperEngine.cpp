@@ -142,10 +142,10 @@ std::string WhisperEngine::transcribe(
 
 	// 日本語・英語の自動判定にも対応
 	params.language =
-		language.c_str();
+		"en";
 
 	params.detect_language =
-		(language == "auto");
+		false;
 
 
 	// CPU側で使うスレッド数

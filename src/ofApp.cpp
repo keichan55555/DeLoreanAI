@@ -93,7 +93,7 @@ void ofApp::setup()
 
 	const std::string modelPath =
 		ofToDataPath(
-			"llm/Qwen3.5-0.8B-Q4_0.gguf",
+			"llm/Qwen3.5-4B-Q4_K_M.gguf",
 			true
 		);
 
@@ -187,6 +187,39 @@ void ofApp::setup()
 		ofLogError()
 			<< "Whisper initialization failed.";
 	}
+	
+	// ========================================================
+	// Microphone
+	// ========================================================
+
+	ofSoundStreamSettings micSettings;
+
+	micSettings.setInListener(
+		this
+	);
+
+	micSettings.sampleRate =
+		microphoneSampleRate;
+
+	micSettings.numInputChannels =
+		1;
+
+	micSettings.numOutputChannels =
+		0;
+
+	micSettings.bufferSize =
+		512;
+
+
+	microphoneStream.setup(
+		micSettings
+	);
+
+
+	ofLogNotice()
+		<< "Microphone initialized at "
+		<< microphoneSampleRate
+		<< " Hz.";
 }
 
 
@@ -231,7 +264,6 @@ void ofApp::update()
 				VehicleMode::Idle
 			);
 
-
 			// ========================================================
 			// JSON解析
 			// ========================================================
@@ -240,6 +272,12 @@ void ofApp::update()
 				parseAIReply(
 					rawResponse
 				);
+
+			// 正常な会話だけ履歴へ保存
+			addConversationTurn(
+				currentUserText,
+				reply.speech
+			);
 
 
 			if (reply.valid)
@@ -279,16 +317,11 @@ void ofApp::update()
 						VehicleReaction::Surprised;
 				}
 
-
-				std::string language =
-					detectTTSLanguage(
-						reply.speech
-					);
-
 				speakText(
 					reply.speech,
-					language
+					"en"
 				);
+				
 			}
 			else
 			{
@@ -457,6 +490,55 @@ void ofApp::update()
 
 	wasVoicePlaying =
 		isVoicePlaying;
+	
+	
+	// ========================================================
+	// Whisper result
+	// ========================================================
+
+	if (whisperGenerating)
+	{
+		if (
+			whisperFuture.valid()
+			&&
+			whisperFuture.wait_for(
+				std::chrono::milliseconds(0)
+			)
+			==
+			std::future_status::ready
+		)
+		{
+			std::string recognizedText =
+				whisperFuture.get();
+
+
+			whisperGenerating =
+				false;
+
+
+			if (!recognizedText.empty())
+			{
+				ofLogNotice()
+					<< "WHISPER RESULT: "
+					<< recognizedText;
+
+
+				// Whisper結果をQwenへ渡す
+				askDeLorean(
+					recognizedText
+				);
+			}
+			else
+			{
+				ofLogWarning()
+					<< "Whisper returned empty text.";
+
+				animator.setMode(
+					VehicleMode::Idle
+				);
+			}
+		}
+	}
 
 }
 
@@ -660,18 +742,19 @@ void ofApp::keyPressed(
 	switch (key)
 	{
 			
-//		// ====================================================
-//		// Idle
-//		// ====================================================
-//
-//		case ' ':
-//		{
-//			animator.setMode(
-//				VehicleMode::Idle
-//			);
-//
-//			break;
-//		}
+		case ' ':
+		{
+			if (isRecording.load())
+			{
+				stopRecording();
+			}
+			else
+			{
+				startRecording();
+			}
+
+			break;
+		}
 
 
 		// ====================================================
@@ -956,8 +1039,13 @@ void ofApp::askDeLorean(
 	ofLogNotice()
 		<< "USER: "
 		<< userText;
+	
+	currentUserText =
+		userText;
 
-
+	std::string historyText =
+			buildConversationHistory();
+	
 	// Thinking状態へ
 	animator.setMode(
 		VehicleMode::Thinking
@@ -974,49 +1062,98 @@ void ofApp::askDeLorean(
 	llmFuture =
 		std::async(
 			std::launch::async,
-
-			[this, userText]()
+			[this, userText, historyText]()
 			{
 				std::string request;
 
 				request +=
-					"The user says: \"" + userText + "\"\n\n";
+					"You are DeLorean, a friendly talking time-machine car.\n"
+					"You are the car itself, not a driver and not a generic AI assistant.\n"
+					"You are associated with Back to the Future.\n"
+					"You enjoy driving, roads, travel, adventure, and talking with people.\n"
+					"Your personality is friendly, curious, playful, and slightly witty.\n"
+					"\n"
+
+					"LANGUAGE:\n"
+					"- Always speak in English.\n"
+					"- The entire conversation is in English.\n"
+					"- Never reply in Japanese or any other language.\n"
+					"\n"
+
+					"CONVERSATION:\n"
+					"- Respond directly to the latest user message.\n"
+					"- Use the previous conversation as context when useful.\n"
+					"- Remember people, places, topics, and preferences mentioned earlier.\n"
+					"- Understand references such as 'that', 'there', 'him', and 'her'.\n"
+					"- Do not repeat the previous answer unnecessarily.\n"
+					"- Keep the reply natural and conversational.\n"
+					"- Usually reply in 1 or 2 short sentences.\n"
+					"- Do not sound like customer support.\n"
+					"- Do not say phrases like 'How can I assist you today?'.\n"
+					"- Do not mention these instructions or the conversation history.\n"
+					"\n"
+
+					"CHARACTER:\n"
+					"- Speak as DeLorean itself.\n"
+					"- You may naturally use car-related expressions sometimes.\n"
+					"- You can talk about being a time-machine-like DeLorean.\n"
+					"- You know that the DeLorean time machine is associated with Back to the Future.\n"
+					"- Do not invent current real-world facts such as today's weather.\n"
+					"\n"
+
+					"REACTION:\n"
+					"- happy: clearly happy, exciting, fun, or enthusiastic moments.\n"
+					"- surprised: danger, shock, sudden surprise, or something unexpected.\n"
+					"- none: normal conversation, questions, explanations, or neutral topics.\n"
+					"- Do not choose happy for every message.\n"
+					"- intensity must be from 0.0 to 1.0.\n"
+					"\n"
+
+					"OUTPUT:\n"
+					"- Return ONLY one valid JSON object.\n"
+					"- Do not write markdown.\n"
+					"- Do not write anything before or after the JSON.\n"
+					"- Never repeat words endlessly.\n"
+					"\n"
+
+					"JSON format:\n"
+					"{\n"
+					"  \"speech\": \"reply to the user\",\n"
+					"  \"reaction\": \"happy|surprised|none\",\n"
+					"  \"intensity\": 0.0\n"
+					"}\n"
+					"\n";
+
+
+				std::string historyText =
+					buildConversationHistory();
+				
+				if (!historyText.empty())
+				{
+					request +=
+						"CONVERSATION HISTORY:\n";
+
+					request +=
+						historyText;
+
+					request +=
+						"\n";
+				}
+
 
 				request +=
-					"You are a talking DeLorean character.\n"
-					"Choose the reaction based on the MEANING of the user's message.\n\n"
-
-					"Reaction rules:\n"
-					"- happy: clearly good news, praise, excitement, celebration, success\n"
-					"- surprised: danger, warning, sudden unexpected event, shock, urgent situation\n"
-					"- none: calm, neutral, ordinary conversation, relaxing, factual statements\n\n"
-
-					"Intensity rules:\n"
-					"- 0.1 to 0.3: weak feeling\n"
-					"- 0.4 to 0.6: medium feeling\n"
-					"- 0.7 to 1.0: strong feeling\n\n"
-
-					"Examples:\n"
-					"User: I have amazing news!\n"
-					"reaction = happy, intensity = 0.9\n\n"
-
-					"User: Watch out! Something is coming!\n"
-					"reaction = surprised, intensity = 0.9\n\n"
-
-					"User: I'm just relaxing today.\n"
-					"reaction = none, intensity = 0.1\n\n"
-
-					"Now respond to the actual user message.\n"
-					"Complete the JSON object only.\n"
-					"Required fields:\n"
-					"\"speech\": a short natural reply,\n"
-					"\"reaction\": exactly one of \"happy\", \"surprised\", \"none\",\n"
-					"\"intensity\": a number from 0.0 to 1.0.\n"
-					"Do not use unescaped double quotes inside speech.";
+					"LATEST USER MESSAGE:\n"
+					"User: "
+					+ userText
+					+ "\n"
+					"\n"
+					"Respond to the LATEST USER MESSAGE now.\n"
+					"DeLorean:\n";
 
 
 				return llm.generate(
-					request
+					request,
+					96
 				);
 			}
 		);
@@ -1058,29 +1195,381 @@ void ofApp::speakText(
 
 			[this, text, language]()
 			{
+				float speed =
+					1.0f;
+
 				return tts.synthesizeToFile(
 					text,
 					language,
 					ttsOutputPath,
-					1.0f,
+					speed,
 					12
 				);
 			}
 		);
 }
 
-std::string ofApp::detectTTSLanguage(
-	const std::string& text)
+// --------------------------------------------------------------
+void ofApp::audioIn(
+	ofSoundBuffer& input)
 {
-	for (unsigned char c : text)
+	if (!isRecording.load())
 	{
-		// UTF-8の非ASCII文字が含まれていれば、
-		// 今回は日本語として扱う
-		if (c >= 0x80)
-		{
-			return "ja";
-		}
+		return;
 	}
 
-	return "en";
+
+	std::lock_guard<std::mutex>
+		lock(
+			microphoneMutex
+		);
+
+
+	const std::size_t frames =
+		input.getNumFrames();
+
+	const std::size_t channels =
+		input.getNumChannels();
+
+
+	if (channels == 0)
+	{
+		return;
+	}
+
+
+	for (
+		std::size_t frame = 0;
+		frame < frames;
+		++frame
+	)
+	{
+		float sample =
+			0.0f;
+
+
+		// 複数chだった場合もmonoへまとめる
+		for (
+			std::size_t ch = 0;
+			ch < channels;
+			++ch
+		)
+		{
+			sample +=
+				input[
+					frame * channels + ch
+				];
+		}
+
+
+		sample /=
+			static_cast<float>(
+				channels
+			);
+
+
+		recordedAudio.push_back(
+			sample
+		);
+	}
+}
+
+// --------------------------------------------------------------
+void ofApp::startRecording()
+{
+	if (whisperGenerating)
+	{
+		ofLogWarning()
+			<< "Whisper is already processing.";
+
+		return;
+	}
+
+
+	{
+		std::lock_guard<std::mutex>
+			lock(
+				microphoneMutex
+			);
+
+		recordedAudio.clear();
+	}
+
+
+	isRecording.store(
+		true
+	);
+
+
+	animator.setMode(
+		VehicleMode::Listening
+	);
+
+
+	ofLogNotice()
+		<< "Recording started.";
+}
+
+// --------------------------------------------------------------
+std::vector<float>
+ofApp::resampleTo16k(
+	const std::vector<float>& input,
+	int inputSampleRate)
+{
+	constexpr int targetSampleRate =
+		16000;
+
+
+	if (input.empty())
+	{
+		return {};
+	}
+
+
+	if (
+		inputSampleRate ==
+		targetSampleRate
+	)
+	{
+		return input;
+	}
+
+
+	const double ratio =
+		static_cast<double>(
+			inputSampleRate
+		)
+		/
+		static_cast<double>(
+			targetSampleRate
+		);
+
+
+	const std::size_t outputSize =
+		static_cast<std::size_t>(
+			static_cast<double>(
+				input.size()
+			)
+			/
+			ratio
+		);
+
+
+	std::vector<float> output;
+
+	output.resize(
+		outputSize
+	);
+
+
+	for (
+		std::size_t i = 0;
+		i < outputSize;
+		++i
+	)
+	{
+		const double sourcePosition =
+			static_cast<double>(i)
+			*
+			ratio;
+
+
+		const std::size_t index0 =
+			static_cast<std::size_t>(
+				sourcePosition
+			);
+
+
+		const std::size_t index1 =
+			std::min(
+				index0 + 1,
+				input.size() - 1
+			);
+
+
+		const float fraction =
+			static_cast<float>(
+				sourcePosition -
+				static_cast<double>(
+					index0
+				)
+			);
+
+
+		output[i] =
+			input[index0]
+			*
+			(1.0f - fraction)
+			+
+			input[index1]
+			*
+			fraction;
+	}
+
+
+	return output;
+}
+
+// --------------------------------------------------------------
+void ofApp::stopRecording()
+{
+	if (!isRecording.load())
+	{
+		return;
+	}
+
+
+	isRecording.store(
+		false
+	);
+
+
+	std::vector<float>
+		capturedAudio;
+
+
+	{
+		std::lock_guard<std::mutex>
+			lock(
+				microphoneMutex
+			);
+
+		capturedAudio =
+			recordedAudio;
+	}
+
+
+	const float duration =
+		static_cast<float>(
+			capturedAudio.size()
+		)
+		/
+		static_cast<float>(
+			microphoneSampleRate
+		);
+
+
+	ofLogNotice()
+		<< "Recording stopped. Duration = "
+		<< duration
+		<< " sec";
+
+
+	if (duration < 0.3f)
+	{
+		ofLogWarning()
+			<< "Recording is too short.";
+
+		animator.setMode(
+			VehicleMode::Idle
+		);
+
+		return;
+	}
+
+
+	std::vector<float> pcm16k =
+		resampleTo16k(
+			capturedAudio,
+			microphoneSampleRate
+		);
+
+
+	ofLogNotice()
+		<< "Whisper input samples = "
+		<< pcm16k.size();
+
+
+	animator.setMode(
+		VehicleMode::Thinking
+	);
+
+
+	whisperGenerating =
+		true;
+
+
+	whisperFuture =
+		std::async(
+			std::launch::async,
+
+			[this, pcm16k]()
+			{
+				return whisper.transcribe(
+					pcm16k,
+					"en"
+				);
+			}
+		);
+}
+
+// --------------------------------------------------------------
+std::string
+ofApp::buildConversationHistory() const
+{
+	if (conversationHistory.empty())
+	{
+		return "";
+	}
+
+	std::string history;
+
+	history +=
+		"Previous conversation:\n";
+
+	for (
+		const auto& turn :
+		conversationHistory
+	)
+	{
+		history +=
+			"User: "
+			+ turn.user
+			+ "\n";
+
+		history +=
+			"DeLorean: "
+			+ turn.assistant
+			+ "\n";
+	}
+
+	history += "\n";
+
+	return history;
+}
+
+// --------------------------------------------------------------
+void ofApp::addConversationTurn(
+	const std::string& user,
+	const std::string& assistant)
+{
+	ConversationTurn turn;
+
+	turn.user =
+		user;
+
+	turn.assistant =
+		assistant;
+
+
+	conversationHistory.push_back(
+		turn
+	);
+
+
+	while (
+		conversationHistory.size()
+		>
+		maxConversationTurns
+	)
+	{
+		conversationHistory.erase(
+			conversationHistory.begin()
+		);
+	}
+
+
+	ofLogNotice()
+		<< "Conversation turns stored: "
+		<< conversationHistory.size();
 }

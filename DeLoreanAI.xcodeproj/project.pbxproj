@@ -811,6 +811,9 @@
 					"/opt/homebrew/opt/nlohmann-json/include",
 					"$(PROJECT_DIR)/third_party/supertonic/cpp",
 				);
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs to access the camera";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "DeLorean AI uses the microphone for speech recognition.";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/opt/homebrew/Cellar/onnxruntime/1.30.0_1/lib,
@@ -846,6 +849,9 @@
 					"/opt/homebrew/opt/nlohmann-json/include",
 					"$(PROJECT_DIR)/third_party/supertonic/cpp",
 				);
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs to access the camera";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "DeLorean AI uses the microphone for speech recognition.";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/opt/homebrew/Cellar/onnxruntime/1.30.0_1/lib,

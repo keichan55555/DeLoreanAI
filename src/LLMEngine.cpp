@@ -72,7 +72,7 @@ bool LLMEngine::setup(
 		llama_context_default_params();
 
 	ctxParams.n_ctx = 2048;
-	ctxParams.n_batch = 512;
+	ctxParams.n_batch = 2048;
 
 	ctx =
 		llama_init_from_model(

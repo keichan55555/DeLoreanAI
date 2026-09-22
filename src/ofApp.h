@@ -9,6 +9,9 @@
 #include <chrono>
 #include "TTSEngine.h"
 #include "WhisperEngine.h"
+#include <atomic>
+#include <mutex>
+#include <vector>
 
 struct AIReply
 {
@@ -18,6 +21,11 @@ struct AIReply
 	bool valid = false;
 };
 
+struct ConversationTurn
+{
+	std::string user;
+	std::string assistant;
+};
 
 class ofApp
 	:
@@ -33,6 +41,25 @@ public:
 		int key
 	);
 
+	void audioIn(
+		ofSoundBuffer& input
+	);
+
+	void startRecording();
+
+	void stopRecording();
+
+	std::vector<float> resampleTo16k(
+		const std::vector<float>& input,
+		int inputSampleRate
+	);
+	
+	std::string buildConversationHistory() const;
+
+	void addConversationTurn(
+		const std::string& user,
+		const std::string& assistant
+	);
 
 private:
 
@@ -70,6 +97,14 @@ private:
 	void askDeLorean(
 		const std::string& userText
 	);
+	
+	std::vector<ConversationTurn>
+		conversationHistory;
+
+	static constexpr std::size_t
+		maxConversationTurns = 3;
+	
+	std::string currentUserText;
 
 	// ========================================================
 	// Drawing
@@ -106,10 +141,6 @@ private:
 		const std::string& language
 	);
 	
-	std::string detectTTSLanguage(
-		const std::string& text
-	);
-	
 	VehicleReaction pendingReaction =
 		VehicleReaction::None;
 
@@ -125,4 +156,25 @@ private:
 	// ========================================================
 	
 	WhisperEngine whisper;
+	
+	ofSoundStream microphoneStream;
+
+	std::atomic<bool> isRecording
+	{
+		false
+	};
+
+	std::mutex microphoneMutex;
+
+	std::vector<float> recordedAudio;
+
+	int microphoneSampleRate =
+		48000;
+
+	std::future<std::string>
+		whisperFuture;
+
+	bool whisperGenerating =
+		false;
+	
 };
