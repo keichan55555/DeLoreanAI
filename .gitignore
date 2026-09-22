@@ -23,4 +23,6 @@ third_party/supertonic/cpp/build/
 third_party/supertonic/assets/
 
 bin/data/whisper/
-third_party/whisper.cpp/build*/bin/data/models/DeLorean.glb
+third_party/whisper.cpp/build*
+
+bin/data/models/DeLorean.glb
