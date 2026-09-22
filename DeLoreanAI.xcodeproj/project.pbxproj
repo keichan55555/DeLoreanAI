@@ -12,12 +12,12 @@
 		"6215B259-022E-4919-857A-0929587161E9" /* DeLorean.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "1B297D79-8ED1-4703-9F1B-8794BC96E8D0" /* DeLorean.cpp */; };
 		"7CE0F05C-0B60-4D8E-BEC7-EB02BF51DA57" /* ofxAssimpModelLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "B7C82966-7338-4C7E-B0E3-CF396143B126" /* ofxAssimpModelLoader.cpp */; };
 		981B80843061998600784730 /* llama.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 981B80833061998600784730 /* llama.xcframework */; };
-		981B80873061A45E00784730 /* libonnxruntime.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 981B80863061A45E00784730 /* libonnxruntime.dylib */; };
 		981B808A3061A5EC00784730 /* helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 981B80893061A5EC00784730 /* helper.cpp */; };
 		981B808B3061A85500784730 /* TTSEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "92BE0DEA-9C57-4E64-9580-AD5C31205ECF" /* TTSEngine.cpp */; };
 		981B808E3061BB7600784730 /* whisper.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 981B808C3061BB5600784730 /* whisper.xcframework */; };
 		981B808F3061BB7600784730 /* whisper.xcframework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 981B808C3061BB5600784730 /* whisper.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		981B80923061BC2400784730 /* WhisperEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 981B80913061BC2400784730 /* WhisperEngine.cpp */; };
+		981B80943062537900784730 /* libonnxruntime.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 981B80933062537900784730 /* libonnxruntime.dylib */; };
 		"A2C1B6E4-A550-48BE-869C-FC9DC551B7C9" /* ofxAssimpTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "3FE785D6-3659-4914-8A04-78DFAE104134" /* ofxAssimpTexture.cpp */; };
 		"AEFBF479-1FFF-4A9A-99B8-12BF8DA29C37" /* ofxAssimpMeshHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "716E9B63-FC47-4621-B407-A8B502E822A5" /* ofxAssimpMeshHelper.cpp */; };
 		"D2A7D5E9-5A67-400B-8478-FFE7DBCA26AA" /* LLMEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "0DD7712B-0809-42E3-A213-75786C548E04" /* LLMEngine.cpp */; };
@@ -168,12 +168,12 @@
 		"96989AC9-4C1A-40D6-A48D-746951FAD5E6" /* LLMEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LLMEngine.h; sourceTree = "<group>"; };
 		"97DD7201-D506-47A3-8077-74293DB15BFF" /* cimport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = cimport.h; sourceTree = "<group>"; };
 		981B80833061998600784730 /* llama.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = llama.xcframework; path = "third_party/llama.cpp/build-apple/llama.xcframework"; sourceTree = "<group>"; };
-		981B80863061A45E00784730 /* libonnxruntime.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libonnxruntime.dylib; path = ../../../../../../../opt/homebrew/Cellar/onnxruntime/1.30.0_1/lib/libonnxruntime.dylib; sourceTree = "<group>"; };
 		981B80883061A5EC00784730 /* helper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = helper.h; path = third_party/supertonic/cpp/helper.h; sourceTree = "<group>"; };
 		981B80893061A5EC00784730 /* helper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = helper.cpp; path = third_party/supertonic/cpp/helper.cpp; sourceTree = "<group>"; };
 		981B808C3061BB5600784730 /* whisper.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = whisper.xcframework; path = "third_party/whisper.cpp/build-apple/whisper.xcframework"; sourceTree = "<group>"; };
 		981B80903061BC1400784730 /* WhisperEngine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WhisperEngine.h; sourceTree = "<group>"; };
 		981B80913061BC2400784730 /* WhisperEngine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WhisperEngine.cpp; sourceTree = "<group>"; };
+		981B80933062537900784730 /* libonnxruntime.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libonnxruntime.dylib; path = /opt/homebrew/opt/onnxruntime/lib/libonnxruntime.dylib; sourceTree = "<absolute>"; };
 		"98B1C6B1-413E-4DF7-A42B-93D65BB98822" /* Vertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Vertex.h; sourceTree = "<group>"; };
 		"9962B2E8-CEFC-4ACE-9E74-63B2071CE9E4" /* StreamWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StreamWriter.h; sourceTree = "<group>"; };
 		"99C3B3F5-B996-4836-807D-2117A6B6AB66" /* ofxAssimpAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxAssimpAnimation.cpp; sourceTree = "<group>"; };
@@ -256,9 +256,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				981B80943062537900784730 /* libonnxruntime.dylib in Frameworks */,
 				981B80843061998600784730 /* llama.xcframework in Frameworks */,
 				981B808E3061BB7600784730 /* whisper.xcframework in Frameworks */,
-				981B80873061A45E00784730 /* libonnxruntime.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -519,7 +519,7 @@
 		981B80853061A45E00784730 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				981B80863061A45E00784730 /* libonnxruntime.dylib */,
+				981B80933062537900784730 /* libonnxruntime.dylib */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -816,7 +816,7 @@
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "DeLorean AI uses the microphone for speech recognition.";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/opt/homebrew/Cellar/onnxruntime/1.30.0_1/lib,
+					/opt/homebrew/opt/onnxruntime/lib,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 27.0;
 				OTHER_LDFLAGS = (
@@ -854,7 +854,7 @@
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "DeLorean AI uses the microphone for speech recognition.";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/opt/homebrew/Cellar/onnxruntime/1.30.0_1/lib,
+					/opt/homebrew/opt/onnxruntime/lib,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 27.0;
 				OTHER_LDFLAGS = (
