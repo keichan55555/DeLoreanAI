@@ -118,7 +118,7 @@ openFrameworks/
 Clone the repository including its submodules:
 
 ```bash
-git clone --recursive <YOUR_REPOSITORY_URL>
+git clone --recursive https://github.com/keichan55555/DeLoreanAI.git
 cd DeLoreanAI
 ```
 
