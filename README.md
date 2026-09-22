@@ -54,7 +54,7 @@ JSON Response
 Supertonic 3         VehicleAnimator
     |                     |
     v                     |
-Generated WAV              |
+Generated WAV             |
     |                     |
     +----------+----------+
                |
