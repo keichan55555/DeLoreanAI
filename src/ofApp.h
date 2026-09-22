@@ -177,4 +177,11 @@ private:
 	bool whisperGenerating =
 		false;
 	
+	// ========================================================
+	// Lighting
+	// ========================================================
+	
+	ofLight keyLight;
+	ofLight rimLight;
+	
 };

@@ -86,6 +86,72 @@ void ofApp::setup()
 		<< "llama version: "
 		<< llama_version();
 	
+	// ============================================================
+	// Lighting
+	// ============================================================
+
+	float keyStrength = 2.0f;
+	float rimStrength = 2.0f;
+	
+	ofSetGlobalAmbientColor(
+		ofColor(55, 55, 55)
+	);
+
+	// Main light
+	keyLight.setup();
+
+	keyLight.setPointLight();
+
+	keyLight.setPosition(
+		350.0f,
+		450.0f,
+		300.0f
+	);
+
+	keyLight.setDiffuseColor(
+		ofColor(
+			255 * keyStrength,
+			255 * keyStrength,
+			255 * keyStrength
+		)
+	);
+
+	keyLight.setSpecularColor(
+		ofColor(
+			255 * keyStrength,
+			255 * keyStrength,
+			255 * keyStrength
+		)
+	);
+
+
+	// Rim light
+	rimLight.setup();
+
+	rimLight.setPointLight();
+
+	rimLight.setPosition(
+		-350.0f,
+		250.0f,
+		-300.0f
+	);
+
+	rimLight.setDiffuseColor(
+		ofColor(
+			255 * rimStrength,
+			255 * rimStrength,
+			255 * rimStrength
+		)
+	);
+
+	rimLight.setSpecularColor(
+		ofColor(
+			255 * rimStrength,
+			255 * rimStrength,
+			255 * rimStrength
+		)
+	);
+	
 	
 	// ============================================================
 	// LLM
@@ -568,9 +634,23 @@ void ofApp::draw()
 	drawGround();
 
 
+	ofEnableDepthTest();
+	
+	
+	ofEnableLighting();
+
+	keyLight.enable();
+	rimLight.enable();
+	
 	car.draw();
 
+	rimLight.disable();
+	keyLight.disable();
 
+	ofDisableLighting();
+
+	ofDisableDepthTest();
+	
 	// 必要なら座標確認
 	//
 	// ofDrawAxis(100);
